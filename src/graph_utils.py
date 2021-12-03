@@ -23,12 +23,14 @@ def generate_population(N : int):
 
 def average_estimate(X):
     '''
-    Compute the average estimate of the population distribution from a set of estimates
+    Compute the average estimate of the population distribution from a set of
+    estimates
 
     Parameters
     ----------
     X : np.ndarray
-        contains in row all the estimates we computed using a sampling algorithm (MCMC, Houdayer, ...)
+        contains in row all the estimates we computed using a sampling
+        algorithm (MCMC, Houdayer, ...)
 
     Returns
     -------
@@ -80,6 +82,7 @@ def build_graph(x_star : np.ndarray, a : float, b : float) -> nx.Graph:
     N = len(x_star)
     N_red = sum(x_star > 0)
     N_blue = N - N_red
+
     # Probability of edge creation
     p_same = a / N # Probability of edge creating within each class
     p_diff = b / N # Probability of edge creation between two classes
@@ -87,10 +90,12 @@ def build_graph(x_star : np.ndarray, a : float, b : float) -> nx.Graph:
     # Building the graph for each subpopulation
     red_graph = nx.fast_gnp_random_graph(N_red, p_same)
     blue_graph = nx.fast_gnp_random_graph(N_blue, p_same)
+
     # Building the whole graph by linking the two subpopulations
     main_graph = generators.random_graph(N_red, N_blue, p_diff)
     main_graph.add_edges_from(red_graph.edges())
     main_graph.add_edges_from(((N_red + x, N_red + y) for x, y in blue_graph.edges()))
+
     return main_graph
 
 
