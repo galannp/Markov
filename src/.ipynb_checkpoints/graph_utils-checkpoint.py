@@ -3,60 +3,6 @@ import networkx as nx
 from networkx.algorithms.bipartite import generators
 import matplotlib.pyplot as plt
 
-def generate_population(N : int):
-    '''
-    Generates a population of N individuals
-
-    Parameters
-    ----------
-    N : int
-        The number of individuals in the population
-
-    Returns
-    -------
-    x : np.ndarray
-        The generated population constituted of two classes
-        The two classes are respectively indicated by -1 and +1
-    '''
-    return 2 * np.random.randint(2, size=N) - 1
-
-
-def average_estimate(X):
-    '''
-    Compute the average estimate of the population distribution from a list of estimates
-
-    Parameters
-    ----------
-    X : list of np.ndarray
-        List that contains all the estimate we computed using a sampling algorithm (MCMC, Houdayer, ...)
-
-    Returns
-    -------
-    x_hat : np.ndarray
-        an average estimate of the population distribution
-    '''
-    avg_estimage = np.mean(X, axis=0)
-    return np.where(avg_estimage > 0, 1, 0)
-
-
-def compute_overlap(x_star : np.ndarray, x : np.ndarray) -> float:
-    '''
-    Computes the overlap between the ground truth and the current estimate.
-
-    Parameters
-    ----------
-    x_star : np.ndarray
-        Ground truth vector.
-    x : np.ndarray
-        Current estimate vector.
-
-    Returns
-    -------
-    q : float
-        The overlap between the inputs.
-    '''
-    return abs(np.inner(x_star, x)) / len(x_star)
-
 
 def build_graph(x_star : np.ndarray, a : float, b : float) -> nx.Graph:
     '''
@@ -110,5 +56,5 @@ def draw_graph(G : nx.Graph, x : np.ndarray = None):
     c = None
     if x is not None:
         c = [ 'r' if v > 0 else 'b' for v in x ]
-
-    nx.draw(G, node_color=c)
+    pos = nx.spring_layout(G, seed=2)
+    nx.draw(G, pos=pos, node_color=c)
