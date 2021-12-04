@@ -1,7 +1,7 @@
 import numpy as np
 import networkx as nx
 from scipy import sparse
-from graph_utils import generate_population
+from performance_utils import generate_population
 
 class Metropolis():
     '''
