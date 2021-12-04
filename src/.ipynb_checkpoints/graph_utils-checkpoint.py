@@ -23,12 +23,12 @@ def generate_population(N : int):
 
 def average_estimate(X):
     '''
-    Compute the average estimate of the population distribution from a set of estimates
+    Compute the average estimate of the population distribution from a list of estimates
 
     Parameters
     ----------
-    X : np.ndarray
-        contains in row all the estimates we computed using a sampling algorithm (MCMC, Houdayer, ...)
+    X : list of np.ndarray
+        List that contains all the estimate we computed using a sampling algorithm (MCMC, Houdayer, ...)
 
     Returns
     -------
