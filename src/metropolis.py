@@ -37,6 +37,7 @@ class Metropolis():
         term1 = A * np.log(a / b)
         term2 = (1. - A) * np.log((1. - a / self. N) / (1. - b / self.N))
         self.H = 0.5 * (term1 + term2)
+        np.fill_diagonal(self.H, 0.0)
 
         self.reset(x_init)
 
