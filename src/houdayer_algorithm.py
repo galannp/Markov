@@ -26,6 +26,12 @@ def houdayer_step(G, x1, x2):
     '''
     # Local overlapping
     y = x1 * x2
+
+    # Chuntso 08.12.21: Handle case when all y == 1
+    if np.argwhere(y == -1).size == 0:
+        # Do nothing for this step
+        return x1, x2
+
     # Selecting a node at random for which the overlapping is -1
     idx_cluster = random.choice(np.argwhere(y == -1).flatten(), 1)[0]
     # The connex component associated to this node
