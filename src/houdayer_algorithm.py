@@ -28,14 +28,17 @@ def houdayer_step(G, x1, x2):
     y = x1 * x2
 
     # Chuntso 08.12.21: Handle case when all y == 1
-    if np.argwhere(y == -1).size == 0:
+    nodes = np.argwhere(y == -1).reshape(-1,)
+    if nodes.size == 0:
         # Do nothing for this step
         return x1, x2
 
+    # Sub-graph induced by nodes where overlapping is -1
+    sG = G.subgraph(nodes)
     # Selecting a node at random for which the overlapping is -1
-    idx_cluster = random.choice(np.argwhere(y == -1).flatten(), 1)[0]
+    idx_cluster = random.choice(nodes, 1)[0]
     # The connex component associated to this node
-    cluster_minus_1 = nx.node_connected_component(G, idx_cluster)
+    cluster_minus_1 = nx.node_connected_component(sG, idx_cluster)
     # Flipping the sign of each individual in the connex components
     for node in cluster_minus_1:
         x1[node] *= -1
