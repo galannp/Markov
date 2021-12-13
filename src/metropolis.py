@@ -63,23 +63,24 @@ class Metropolis():
         self.x = x_init.copy()
 
 
-    def step(self):
+    def step(self, nb_step=1):
         '''
-        Moves the Metropolis chain to the next step.
+        Moves the Metropolis chain of several steps (default: the next step).
         '''
-        # Pick random vertex
-        v = np.random.randint(self.N)
+        for _ in range (nb_step):
+            # Pick random vertex
+            v = np.random.randint(self.N)
 
-        #TODO: there might be more efficient update
-        #TODO: update to new np RNG?
-        # Compute acceptance probability
-        exp = - 2. * self.x[v] * np.inner(self.H[v, :], self.x)
-        a_xy = min(1., np.exp(exp))
+            #TODO: there might be more efficient update
+            #TODO: update to new np RNG?
+            # Compute acceptance probability
+            exp = - 2. * self.x[v] * np.inner(self.H[v, :], self.x)
+            a_xy = min(1., np.exp(exp))
 
-        # Apply acceptance probability
-        sample = np.random.uniform()
-        if sample <= a_xy:
-            self.x[v] *= -1
+            # Apply acceptance probability
+            sample = np.random.uniform()
+            if sample <= a_xy:
+                self.x[v] *= -1
 
-        # Update state
-        self.n += 1
+            # Update state
+            self.n += 1

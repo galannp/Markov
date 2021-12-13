@@ -57,8 +57,9 @@ def draw_graph(G : nx.Graph, x : np.ndarray = None):
     if x is not None:
         c = [ 'r' if v > 0 else 'b' for v in x ]
     pos = nx.spring_layout(G, seed=2)
+    plt.figure(figsize=(10, 10))
     nx.draw(G, pos=pos, node_color=c, node_size=12, width=0.5)
-
+    plt.title("Population size: {}".format(len(G)), fontdict={"fontsize":25})
 
 
 def graph_gen(group:np.ndarray, a:int, b:int,) -> (nx.graph):
