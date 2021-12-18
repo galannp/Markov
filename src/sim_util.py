@@ -26,20 +26,19 @@ class TimedPrint():
             self.next_event_time(interval)
 
 
-
-
 def critical_ratio(deg: int) -> float:
     ''' Finds the critical ratio to detect community, one should use r < crit_r.
-    
+
         Parameters:
         ------------
         deg: degree of the graph
-        
+
         Output:
         ------------
         crit_r: critical ratio for successful community detection
     '''
     return (np.sqrt(deg)-1) / (np.sqrt(deg)+1)
+
 
 def generate_detectable_a_b(deg: int, r: float=None) -> tuple:
     ''' Uniformly generate possible pair (a,b) so that the community is detectable,
@@ -48,7 +47,7 @@ def generate_detectable_a_b(deg: int, r: float=None) -> tuple:
         Parameters:
         -------------
         deg: The degree of the graph
-        
+
         Output: The numbers (a,b,r)
     '''
     rc = critical_ratio(deg)
@@ -76,10 +75,9 @@ def display_spec(N:int, d:int, a:float, b:float, r:float):
     print(f'  Critical ratio (rc) = {rc} (for detectable communities)')
 
 
-
 def Metropolis_Houdayer_step(G:nx.graph, ch1:Metropolis, ch2:Metropolis, num_metropolis_steps:int=1, num_houdayer_steps:int=1)->None:
     '''
-    Apply Houdayer and Metropolis steps to the 2 chains. 
+    Apply Houdayer and Metropolis steps to the 2 chains.
     The result will directly update the estimation stored in the 2 chains.
 
     Parameters
@@ -90,7 +88,6 @@ def Metropolis_Houdayer_step(G:nx.graph, ch1:Metropolis, ch2:Metropolis, num_met
     num_houdayer_steps: The number of Houdayer steps we perform
     '''
 
-
     # Update with Houdayer step
     for hou in range(num_houdayer_steps):
         ch1.x, ch2.x = houdayer_step(G, ch1.x, ch2.x)
@@ -98,7 +95,6 @@ def Metropolis_Houdayer_step(G:nx.graph, ch1:Metropolis, ch2:Metropolis, num_met
     # Update with Metropolis step
     for met in range(num_metropolis_steps):
         ch1.step(); ch2.step()
-
 
 
 def sim_one_round(G:nx.graph, ch1:Metropolis, ch2:Metropolis, true_group:np.ndarray, num_iter:int, met_steps:int=1, hou_steps:int=1) -> tuple:
@@ -128,14 +124,14 @@ def sim_one_round(G:nx.graph, ch1:Metropolis, ch2:Metropolis, true_group:np.ndar
 
     for itr in range(num_iter):
         Metropolis_Houdayer_step(G, ch1, ch2, met_steps, hou_steps)
-            
+
         # Maintain the overlap record
         overlap_ch1.append(compute_overlap(true_group, ch1.x))
         overlap_ch2.append(compute_overlap(true_group, ch2.x))
 
     return np.array(overlap_ch1), np.array(overlap_ch2), np.array(iter_index)
 
- 
+
 
 def plot_sim(x:Iterable, y:Iterable, title:str='', x_label:str='', y_label:str='', grid_on:bool=True) -> None:
     '''
@@ -150,7 +146,6 @@ def plot_sim(x:Iterable, y:Iterable, title:str='', x_label:str='', y_label:str='
     grid_on: whether to turn on the grid or not
 
     '''
-
     # Ploting the respective graph
     plt.figure(dpi=600)
 
@@ -160,7 +155,6 @@ def plot_sim(x:Iterable, y:Iterable, title:str='', x_label:str='', y_label:str='
     plt.xlabel(x_label)
     plt.ylabel(y_label)
     plt.grid(grid_on)
-
 
 
 def predict_one(adj:np.ndarray, a:float, b:float, max_iter:int=None, tolerance:float=None, sample_length:int=None) -> np.ndarray:
@@ -243,10 +237,9 @@ def predict_one(adj:np.ndarray, a:float, b:float, max_iter:int=None, tolerance:f
 
     # Get the first majority vote from the recent states
     pred = get_majority(recent_states)
-    
+
     return pred, conv_index
 
-    
 
 def predict(adj:np.ndarray, a:float, b:float, true_label:np.ndarray=None,
                      sim_num:int=1, max_iter:int=None, tolerance:float=None, sample_length:int=None):
@@ -278,7 +271,7 @@ def predict(adj:np.ndarray, a:float, b:float, true_label:np.ndarray=None,
     # Simulate for the given times
     for s in range(sim_num):
         print(f"Sim - {s+1}")
-        predictions[s,:] ,conv_indices[s] = predict_one(adj, a, b, max_iter, tolerance, sample_length)
+        predictions[s,:], conv_indices[s] = predict_one(adj, a, b, max_iter, tolerance, sample_length)
         if true_label is not None:
             print(f"Overlap = {compute_overlap(true_label, predictions[s,:])}")
 
@@ -301,7 +294,7 @@ def get_majority(samples, weight=None):
     ----------
     major: the prediction by the majority vote
     '''
-    ## Direction tilting: 
+    ## Direction tilting:
     # We rotate each prediction to the same direction. Since prediction x and -x represent
     # the same community calssification. But when we average all the results, it causes problems.
 

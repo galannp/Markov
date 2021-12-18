@@ -25,7 +25,7 @@ class Metropolis():
     A : np.ndarray
     H : np.ndarray
     x : np.ndarray
-    n : int
+    t : int
 
     def __init__(self, A : np.ndarray, a : float, b : float, x_init : np.ndarray = None):
         self.A = A
@@ -56,7 +56,7 @@ class Metropolis():
             Starting state. If None, the state will be a random vecotr with
             x_init[i] = ±1 chosen uniformly at random.
         '''
-        self.n = 0
+        self.t = 0
 
         if x_init is None:
             x_init = generate_population(self.N)
@@ -83,4 +83,4 @@ class Metropolis():
                 self.x[v] *= -1
 
             # Update state
-            self.n += 1
+            self.t += 1
