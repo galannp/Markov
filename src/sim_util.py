@@ -1,9 +1,9 @@
 import numpy as np
-from numpy.lib.function_base import vectorize
 import networkx as nx
 from tqdm import tqdm
 import matplotlib.pyplot as plt
 import time
+from concurrent.futures import ProcessPoolExecutor, as_completed
 
 from graph_utils import *
 from performance_utils import *
@@ -157,7 +157,7 @@ def plot_sim(x:Iterable, y:Iterable, title:str='', x_label:str='', y_label:str='
     plt.grid(grid_on)
 
 
-def predict_one(adj:np.ndarray, a:float, b:float, max_iter:int=None, tolerance:float=None, sample_length:int=None) -> np.ndarray:
+def predict_one(adj:np.ndarray, a:float, b:float, max_iter:int=None, tolerance:float=None, sample_length:int=None, print_status:bool=False) -> np.ndarray:
     '''
     One-round binary community detection by Metropolis-Hasting algorithm.
 
@@ -222,18 +222,20 @@ def predict_one(adj:np.ndarray, a:float, b:float, max_iter:int=None, tolerance:f
             # Current convergence index, the smaller means the recent results reach a consensus
             conv_index = np.mean(np.abs(ave_sample - state)/2)
 
-            # Print current states to keep track of the status quo. Don't let the human operator get boring :-)
-            print_msg = "Itr = {itr}; Convergence index = {val:.{num_digits}f}".format(itr=itr+1, val=conv_index, num_digits=num_digits)
-            print_time_interval = 0.15  # time interval of each message
-            time_print.print(msg=print_msg, interval=print_time_interval, end='\r')
+            if print_status:
+                # Print current states to keep track of the status quo. Don't let the human operator get boring :-)
+                print_msg = "Itr = {itr}; Convergence index = {val:.{num_digits}f}".format(itr=itr+1, val=conv_index, num_digits=num_digits)
+                print_time_interval = 0.15  # time interval of each message
+                time_print.print(msg=print_msg, interval=print_time_interval, end='\r')
 
             # If convergence index is sufficiently small (metropolis result close to consensus),
             # terminate the program
             if conv_index < tolerance:
                 break
 
-    # Make sure to print the last iteration when terminating
-    print(print_msg)
+    if print_status:
+        # Make sure to print the last iteration when terminating
+        print(print_msg)
 
     # Get the first majority vote from the recent states
     pred = get_majority(recent_states)
@@ -268,12 +270,15 @@ def predict(adj:np.ndarray, a:float, b:float, true_label:np.ndarray=None,
     # each element is the convergence index at that simulation round
     conv_indices = np.ones(sim_num)
 
-    # Simulate for the given times
-    for s in range(sim_num):
-        print(f"Sim - {s+1}")
-        predictions[s,:], conv_indices[s] = predict_one(adj, a, b, max_iter, tolerance, sample_length)
-        if true_label is not None:
-            print(f"Overlap = {compute_overlap(true_label, predictions[s,:])}")
+    # Parallel simulation
+    with ProcessPoolExecutor() as executor:
+        futures = [executor.submit(predict_one, adj, a, b, max_iter, tolerance, sample_length) for s in range(sim_num)]
+
+        for s, f in enumerate(as_completed(futures)):
+            predictions[s,:], conv_indices[s] = f.result()
+            print(f'Sim - {s+1} completed. Overlap = {compute_overlap(true_label, predictions[s,:])}')
+
+
 
     # Get the weighted majority vote from all the simulations
     pred_major = get_majority(predictions, 1/conv_indices)
